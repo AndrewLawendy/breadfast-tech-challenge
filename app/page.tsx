@@ -1,32 +1,27 @@
-import { ProductCard } from "@/components/product/ProductCard";
-import { ProductResponse } from "@/types/product";
+import ProductList from "@/components/product/ProductList";
 
-export const getProducts = async () => {
-  const productsResponse = await fetch("https://dummyjson.com/products", {
-    cache: "no-store",
-  });
-
-  if (!productsResponse.ok) {
-    throw new Error("Failed to fetch products");
-  }
-
-  const jsonProductResponse: ProductResponse = await productsResponse.json();
-
-  return jsonProductResponse;
-};
-
-export default async function Home() {
-  const productResponse = await getProducts();
-
+export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <div>
-          {productResponse.products.map((product) => (
-            <ProductCard key={product.id} {...product} />
-          ))}
+    <>
+      <section className="py-20 text-center">
+        <div className="container mx-auto px-4">
+          <h1 className="text-5xl font-bold text-[#b0228c] mb-6">
+            Welcome to EverMart
+          </h1>
+          <p className="text-xl text-[#666666] mb-8 max-w-2xl mx-auto">
+            Your one-stop shop for household essentials and more
+          </p>
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section className="section-cream py-20">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-[#b0228c] mb-12 text-center">
+            Our Products
+          </h2>
+          <ProductList />
+        </div>
+      </section>
+    </>
   );
 }
