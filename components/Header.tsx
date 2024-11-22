@@ -23,12 +23,12 @@ export default function Header() {
   return (
     <header className="bg-white shadow-sm fixed top-0 left-0 right-0 z-10">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold text-[#b0228c]">
+        <Link href="/" className="text-2xl font-bold text-primary">
           EverMart
         </Link>
         <Link
           href="/cart"
-          className="flex items-center gap-2 text-[#b0228c] hover:text-[#8c1b70] transition-colors"
+          className="flex items-center gap-2 text-primary hover:text-primary-dark transition-colors"
         >
           <ShoppingBag />
           <span className="font-medium">Cart (0)</span>
