@@ -21,4 +21,4 @@ jobs:
 
       - name: Lint PR Title
         run: |
-          echo "${{ github.event.pull_request.title }}" | npx commitlint --verbose
+          echo "${{github.event.pull_request.title }}" | npx commitlint --verbose
