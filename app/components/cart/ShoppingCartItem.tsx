@@ -43,12 +43,8 @@ export function ShoppingCartItem({ id, cartItem }: ShoppingCartItemProps) {
           className="w-20 h-20 object-cover rounded-xl"
         />
         <div>
-          <h3 className="text-xl font-bold text-[var(--primary)] mb-1">
-            {item.title}
-          </h3>
-          <p className="text-[var(--text-secondary)]">
-            ${item.price.toFixed(2)}
-          </p>
+          <h3 className="text-xl font-bold text-primary mb-1">{item.title}</h3>
+          <p className="text-text-secondary">${item.price.toFixed(2)}</p>
         </div>
       </div>
       <div className="flex items-center gap-4">
@@ -57,19 +53,19 @@ export function ShoppingCartItem({ id, cartItem }: ShoppingCartItemProps) {
             onClick={() => updateItemQuantity(item, cartItem.quantity - 1)}
             className="p-1 rounded-full hover:bg-gray-100 transition-colors"
           >
-            <Minus className="h-4 w-4 text-[var(--text-secondary)]" />
+            <Minus className="h-4 w-4 text-text-secondary" />
           </button>
           <span className="mx-2 font-semibold">{cartItem.quantity}</span>
           <button
             onClick={() => updateItemQuantity(item, cartItem.quantity + 1)}
             className="p-1 rounded-full hover:bg-gray-100 transition-colors"
           >
-            <Plus className="h-4 w-4 text-[var(--text-secondary)]" />
+            <Plus className="h-4 w-4 text-text-secondary" />
           </button>
         </div>
         <button
           onClick={() => removeFromCart(item.id)}
-          className="text-[var(--text-secondary)] hover:text-[var(--primary)] p-2 rounded-full hover:bg-gray-100 transition-colors"
+          className="text-text-secondary hover:text-primary p-2 rounded-full hover:bg-gray-100 transition-colors"
         >
           <X className="h-6 w-6" />
         </button>

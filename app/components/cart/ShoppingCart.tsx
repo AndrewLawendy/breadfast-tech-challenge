@@ -9,7 +9,7 @@ export default function ShoppingCart() {
   return (
     <div className="bg-white rounded-2xl shadow-md p-8">
       {cart.length === 0 ? (
-        <p className="text-center text-[var(--text-secondary)] py-12">
+        <p className="text-center text-text-secondary py-12">
           Your cart is empty.
         </p>
       ) : (
@@ -19,22 +19,22 @@ export default function ShoppingCart() {
           ))}
           <div className="mt-8 pt-8 border-t border-gray-100">
             <div className="flex justify-between items-center mb-4">
-              <span className="text-xl font-bold text-[var(--text-primary)]">
+              <span className="text-xl font-bold text-text-primary">
                 Total Items
               </span>
-              <span className="text-xl font-bold text-[var(--primary)]">
+              <span className="text-xl font-bold text-primary">
                 {getTotalItems()}
               </span>
             </div>
             <div className="flex justify-between items-center mb-8">
-              <span className="text-xl font-bold text-[var(--text-primary)]">
+              <span className="text-xl font-bold text-text-primary">
                 Total Price
               </span>
-              <span className="text-2xl font-bold text-[var(--primary)]">
+              <span className="text-2xl font-bold text-primary">
                 ${getTotalPrice().toFixed(2)}
               </span>
             </div>
-            <button className="w-full bg-[var(--primary)] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[var(--primary-dark)] transition-colors">
+            <button className="w-full bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary-dark transition-colors">
               Proceed to Checkout
             </button>
           </div>
