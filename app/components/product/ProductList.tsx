@@ -1,5 +1,5 @@
 import ProductCard from "./ProductCard";
-import { ProductResponse } from "@/types/product";
+import { ProductResponse } from "@/app/types/product";
 
 export const getProducts = async () => {
   const productsResponse = await fetch("https://dummyjson.com/products");
