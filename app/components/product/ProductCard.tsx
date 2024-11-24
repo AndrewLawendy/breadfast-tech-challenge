@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Product } from "@/app/types/product";
+import { useCart } from "@/app/context/CartContext";
 
 export default function ProductCard({
   id,
@@ -12,6 +13,18 @@ export default function ProductCard({
   price,
   description,
 }: Product) {
+  const { cart, updateItemQuantity } = useCart();
+
+  const addToCart = (item: Pick<Product, "id" | "title" | "price">) => {
+    const existingItemIndex = cart.findIndex((item) => item.id == id);
+
+    if (existingItemIndex > -1) {
+      updateItemQuantity(item, cart[existingItemIndex].quantity + 1);
+    } else {
+      updateItemQuantity(item, 1);
+    }
+  };
+
   return (
     <div className="flex flex-col bg-white rounded-2xl shadow-md overflow-hidden transition-transform hover:scale-[1.02]">
       <Link href={`/product/${id}`}>
@@ -36,7 +49,7 @@ export default function ProductCard({
       </div>
       <div className="px-6 pb-6">
         <button
-          onClick={() => console.log(`Add ${id} to cart`)}
+          onClick={() => addToCart({ id, title, price })}
           className="w-full bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary-dark transition-colors"
         >
           Add to Cart
