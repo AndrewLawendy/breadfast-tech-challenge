@@ -1,0 +1,24 @@
+name: PR Title Lint
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  lint-pr-title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.11.0"
+
+      - name: Install Dependencies
+        run: yarn install
+
+      - name: Lint PR Title
+        run: |
+          echo "${{github.event.pull_request.title }}" | npx commitlint --verbose
