@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 
 import { Product } from "@/app/types/product";
 import { useCart } from "@/app/context/CartContext";
@@ -27,21 +26,18 @@ export default function ProductCard({
 
   return (
     <div className="flex flex-col bg-white rounded-2xl shadow-md overflow-hidden transition-transform hover:scale-[1.02]">
-      <Link href={`/product/${id}`}>
-        <Image
-          src={thumbnail}
-          alt={title}
-          width={300}
-          height={200}
-          className="w-full h-48 object-cover"
-        />
-      </Link>
+      <Image
+        src={thumbnail}
+        alt={title}
+        width={300}
+        height={200}
+        className="w-full h-48 object-cover"
+      />
+
       <div className="flex-grow pt-6 px-6 pb-4">
-        <Link href={`/product/${id}`}>
-          <h2 className="text-xl font-bold mb-2 text-primary hover:text-primary-dark transition-colors">
-            {title}
-          </h2>
-        </Link>
+        <h2 className="text-xl font-bold mb-2 text-primary hover:text-primary-dark transition-colors">
+          {title}
+        </h2>
         <p className="text-2xl font-bold mb-3 text-text-primary">
           ${price.toFixed(2)}
         </p>
