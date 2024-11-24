@@ -4,7 +4,11 @@ import { useCart } from "@/app/context/CartContext";
 import { ShoppingCartItem } from "./ShoppingCartItem";
 
 export default function ShoppingCart() {
-  const { cart, getTotalItems, getTotalPrice } = useCart();
+  const { cart, getTotalItems, getTotalPrice, isLoading } = useCart();
+
+  if (isLoading) {
+    return <div className="text-center py-12">Loading cart...</div>;
+  }
 
   return (
     <div className="bg-white rounded-2xl shadow-md p-8">

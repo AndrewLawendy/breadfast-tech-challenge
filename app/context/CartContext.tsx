@@ -20,6 +20,7 @@ interface CartContextValue {
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
+  isLoading: boolean;
   isUpdating: boolean;
 }
 
@@ -28,10 +29,22 @@ const CartContext = createContext<CartContextValue | undefined>(undefined);
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [cart, setCart] = useState<CartItem[]>(
-    JSON.parse(localStorage.getItem("cart") || "[]"),
-  );
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
+
+  useEffect(() => {
+    const loadCartFromLocalStorage = () => {
+      const localCart = localStorage.getItem("cart");
+      if (localCart) {
+        setCart(JSON.parse(localCart));
+      }
+
+      setIsLoading(false);
+    };
+
+    loadCartFromLocalStorage();
+  }, []);
 
   useEffect(() => {
     const loadCart = async () => {
@@ -135,6 +148,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         clearCart,
         getTotalItems,
         getTotalPrice,
+        isLoading,
         isUpdating,
       }}
     >
