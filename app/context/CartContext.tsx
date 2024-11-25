@@ -17,11 +17,9 @@ interface CartContextValue {
     quantity: number,
   ) => Promise<void>;
   removeFromCart: (id: number) => void;
-  clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
   isLoading: boolean;
-  isUpdating: boolean;
 }
 
 const CartContext = createContext<CartContextValue | undefined>(undefined);
@@ -31,7 +29,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     const loadCartFromLocalStorage = () => {
@@ -73,8 +70,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       return;
     }
 
-    setIsUpdating(true);
-
+    const currentCart = [...cart];
     const updatedCart = cart.map((item) =>
       item.id === id ? { ...item, quantity } : item,
     );
@@ -84,48 +80,46 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       updatedCart.push({ id, title, price, quantity });
     }
 
+    // Optimistic rendering
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+
     try {
       await fetch("/api/cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedCart),
-      }).finally(() => {
-        setIsUpdating(false);
       });
-
-      setCart(updatedCart);
-
-      localStorage.setItem("cart", JSON.stringify(updatedCart));
     } catch (error) {
       console.error("Failed to update item quantity:", error);
+
+      // Optimistic rendering: Handling error
+      setCart(currentCart);
+      localStorage.setItem("cart", JSON.stringify(currentCart));
     }
   };
 
   const removeFromCart = async (id: number) => {
-    setIsUpdating(true);
+    const currentCart = [...cart];
     const updatedCart = cart.filter((item) => item.id !== id);
+
+    // Optimistic rendering
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
 
     try {
       await fetch("/api/cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedCart),
-      }).finally(() => setIsUpdating(false));
-
-      setCart(updatedCart);
-
-      localStorage.setItem("cart", JSON.stringify(updatedCart));
+      });
     } catch (error) {
       console.error("Failed to remove item from cart:", error);
-    }
-  };
 
-  const clearCart = () => {
-    setCart([]);
-    localStorage.removeItem("cart");
-    fetch("/api/cart", { method: "DELETE" }).catch((error) =>
-      console.error("Failed to clear cart:", error),
-    );
+      // Optimistic rendering: Handling error
+      setCart(currentCart);
+      localStorage.setItem("cart", JSON.stringify(currentCart));
+    }
   };
 
   const getTotalItems = () => {
@@ -145,11 +139,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         cart,
         updateItemQuantity,
         removeFromCart,
-        clearCart,
         getTotalItems,
         getTotalPrice,
         isLoading,
-        isUpdating,
       }}
     >
       {children}
