@@ -2,17 +2,20 @@
 
 import { useCart } from "@/app/context/CartContext";
 import { ShoppingCartItem } from "./ShoppingCartItem";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function ShoppingCart() {
   const { cart, updateCart, getTotalItems, getTotalPrice, isLoading } =
     useCart();
+  const [cartDetailsUpdated, setCartDetailsUpdated] = useState(false);
 
   useEffect(() => {
     // Update the cart with the latest item details in case the item owner changed any details
     // like name, thumbnail or especially the price
     // then our customer would proceed with outdated info
     const refreshCartDetails = async () => {
+      if (cartDetailsUpdated || isLoading) return;
+
       const updatedCart = [];
       for (const item of cart) {
         const updatedItem = await fetch(
@@ -28,15 +31,11 @@ export default function ShoppingCart() {
       }
 
       updateCart(updatedCart);
+      setCartDetailsUpdated(true);
     };
 
     refreshCartDetails();
-
-    // I only need this on page mount
-    // any change in the cart adding or deleting will be with current up to date item info
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [cart, cartDetailsUpdated, isLoading, updateCart]);
 
   if (isLoading) {
     return <div className="text-center py-12">Loading cart...</div>;

@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { Product } from "../types/product";
 
 export interface CartItem {
@@ -61,70 +67,76 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     loadCart();
   }, []);
 
-  const updateItemQuantity = async (
-    cartItem: Pick<Product, "id" | "title" | "price" | "thumbnail">,
-    quantity: number,
-  ) => {
-    const { id } = cartItem;
+  const removeFromCart = useCallback(
+    async (id: number) => {
+      const currentCart = [...cart];
+      const updatedCart = cart.filter((item) => item.id !== id);
 
-    if (quantity <= 0) {
-      removeFromCart(id); // Automatically remove items with zero or negative quantities
-      return;
-    }
+      // Optimistic rendering
+      setCart(updatedCart);
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
 
-    const currentCart = [...cart];
-    const updatedCart = cart.map((item) =>
-      item.id === id ? { ...item, quantity } : item,
-    );
+      const response = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedCart),
+      });
 
-    const itemExists = cart.find((item) => item.id === id);
-    if (!itemExists) {
-      updatedCart.push({ ...cartItem, quantity });
-    }
+      if (!response.ok) {
+        // Optimistic rendering: Handling error
+        setCart(currentCart);
+        localStorage.setItem("cart", JSON.stringify(currentCart));
 
-    // Optimistic rendering
-    setCart(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    },
+    [cart],
+  );
 
-    const response = await fetch("/api/cart", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedCart),
-    });
+  const updateItemQuantity = useCallback(
+    async (
+      cartItem: Pick<Product, "id" | "title" | "price" | "thumbnail">,
+      quantity: number,
+    ) => {
+      const { id } = cartItem;
 
-    if (!response.ok) {
-      // Optimistic rendering: Handling error
-      setCart(currentCart);
-      localStorage.setItem("cart", JSON.stringify(currentCart));
+      if (quantity <= 0) {
+        removeFromCart(id); // Automatically remove items with zero or negative quantities
+        return;
+      }
 
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-  };
+      const currentCart = [...cart];
+      const updatedCart = cart.map((item) =>
+        item.id === id ? { ...item, quantity } : item,
+      );
 
-  const removeFromCart = async (id: number) => {
-    const currentCart = [...cart];
-    const updatedCart = cart.filter((item) => item.id !== id);
+      const itemExists = cart.find((item) => item.id === id);
+      if (!itemExists) {
+        updatedCart.push({ ...cartItem, quantity });
+      }
 
-    // Optimistic rendering
-    setCart(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
+      // Optimistic rendering
+      setCart(updatedCart);
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
 
-    const response = await fetch("/api/cart", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedCart),
-    });
+      const response = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedCart),
+      });
 
-    if (!response.ok) {
-      // Optimistic rendering: Handling error
-      setCart(currentCart);
-      localStorage.setItem("cart", JSON.stringify(currentCart));
+      if (!response.ok) {
+        // Optimistic rendering: Handling error
+        setCart(currentCart);
+        localStorage.setItem("cart", JSON.stringify(currentCart));
 
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-  };
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    },
+    [cart, removeFromCart],
+  );
 
-  const updateCart = async (cart: CartItem[]) => {
+  const updateCart = useCallback(async (cart: CartItem[]) => {
     const currentCart = [...cart];
 
     // Optimistic rendering
@@ -144,7 +156,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-  };
+  }, []);
 
   const getTotalItems = () => {
     return cart.reduce((sum, item) => sum + item.quantity, 0);
