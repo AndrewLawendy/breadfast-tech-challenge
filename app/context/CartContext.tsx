@@ -7,18 +7,20 @@ export interface CartItem {
   id: number;
   title: string;
   price: number;
+  thumbnail: string;
   quantity: number;
 }
 
 interface CartContextValue {
   cart: CartItem[];
   updateItemQuantity: (
-    cartItem: Pick<Product, "id" | "title" | "price">,
+    cartItem: Pick<Product, "id" | "title" | "price" | "thumbnail">,
     quantity: number,
   ) => Promise<void>;
   removeFromCart: (id: number) => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
+  updateCart: (cart: CartItem[]) => Promise<void>;
   isLoading: boolean;
 }
 
@@ -60,10 +62,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const updateItemQuantity = async (
-    cartItem: Pick<Product, "id" | "title" | "price">,
+    cartItem: Pick<Product, "id" | "title" | "price" | "thumbnail">,
     quantity: number,
   ) => {
-    const { id, title, price } = cartItem;
+    const { id } = cartItem;
 
     if (quantity <= 0) {
       removeFromCart(id); // Automatically remove items with zero or negative quantities
@@ -77,7 +79,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const itemExists = cart.find((item) => item.id === id);
     if (!itemExists) {
-      updatedCart.push({ id, title, price, quantity });
+      updatedCart.push({ ...cartItem, quantity });
     }
 
     // Optimistic rendering
@@ -122,6 +124,28 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const updateCart = async (cart: CartItem[]) => {
+    const currentCart = [...cart];
+
+    // Optimistic rendering
+    setCart(cart);
+    localStorage.setItem("cart", JSON.stringify(cart));
+
+    try {
+      await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cart),
+      });
+    } catch (error) {
+      console.error("Failed to update cart:", error);
+
+      // Optimistic rendering: Handling error
+      setCart(currentCart);
+      localStorage.setItem("cart", JSON.stringify(currentCart));
+    }
+  };
+
   const getTotalItems = () => {
     return cart.reduce((sum, item) => sum + item.quantity, 0);
   };
@@ -139,6 +163,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         cart,
         updateItemQuantity,
         removeFromCart,
+        updateCart,
         getTotalItems,
         getTotalPrice,
         isLoading,

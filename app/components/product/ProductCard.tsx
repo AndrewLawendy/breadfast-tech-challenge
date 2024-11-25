@@ -14,7 +14,9 @@ export default function ProductCard({
 }: Product) {
   const { cart, updateItemQuantity } = useCart();
 
-  const addToCart = (item: Pick<Product, "id" | "title" | "price">) => {
+  const addToCart = (
+    item: Pick<Product, "id" | "title" | "price" | "thumbnail">,
+  ) => {
     const existingItemIndex = cart.findIndex((item) => item.id == id);
 
     if (existingItemIndex > -1) {
@@ -45,7 +47,7 @@ export default function ProductCard({
       </div>
       <div className="px-6 pb-6">
         <button
-          onClick={() => addToCart({ id, title, price })}
+          onClick={() => addToCart({ id, title, thumbnail, price })}
           className="w-full bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary-dark transition-colors"
         >
           Add to Cart
