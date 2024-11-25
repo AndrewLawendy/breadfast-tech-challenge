@@ -12,26 +12,25 @@ export function ShoppingCartItem({ cartItem }: ShoppingCartItemProps) {
   const { updateItemQuantity, removeFromCart } = useCart();
 
   return (
-    <div
-      key={cartItem.id}
-      className="flex items-center justify-between border-b border-gray-100 py-6 first:pt-0"
-    >
-      <div className="flex items-center gap-6">
-        <Image
-          src={cartItem.thumbnail}
-          alt={cartItem.title}
-          width={80}
-          height={80}
-          className="w-20 h-20 object-cover rounded-xl"
-        />
-        <div>
-          <h3 className="text-xl font-bold text-primary mb-1">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-gray-100 py-4 sm:py-6 first:pt-0">
+      <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto mb-4 sm:mb-0">
+        <div className="flex-shrink-0">
+          <Image
+            src={cartItem.thumbnail}
+            alt={cartItem.title}
+            width={80}
+            height={80}
+            className="w-20 h-20 object-cover rounded-xl"
+          />
+        </div>
+        <div className="flex-grow sm:flex-grow-0">
+          <h3 className="text-lg sm:text-xl font-bold text-primary mb-1">
             {cartItem.title}
           </h3>
           <p className="text-text-secondary">${cartItem.price.toFixed(2)}</p>
         </div>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4">
         <div className="flex items-center">
           <button
             onClick={() => updateItemQuantity(cartItem, cartItem.quantity - 1)}
