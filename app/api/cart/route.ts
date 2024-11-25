@@ -13,6 +13,6 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  await redis.set("cart", body, { ex: 3600 }); // Expires in 1 hour
+  await redis.set("cart", body, { ex: 24 * 3600 }); // Expires in 24 hour
   return NextResponse.json({ success: true });
 }
