@@ -86,18 +86,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
 
-    try {
-      await fetch("/api/cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedCart),
-      });
-    } catch (error) {
-      console.error("Failed to update item quantity:", error);
+    const response = await fetch("/api/cart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedCart),
+    });
 
+    if (!response.ok) {
       // Optimistic rendering: Handling error
       setCart(currentCart);
       localStorage.setItem("cart", JSON.stringify(currentCart));
+
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
   };
 
@@ -109,18 +109,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
 
-    try {
-      await fetch("/api/cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedCart),
-      });
-    } catch (error) {
-      console.error("Failed to remove item from cart:", error);
+    const response = await fetch("/api/cart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedCart),
+    });
 
+    if (!response.ok) {
       // Optimistic rendering: Handling error
       setCart(currentCart);
       localStorage.setItem("cart", JSON.stringify(currentCart));
+
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
   };
 
@@ -131,18 +131,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     setCart(cart);
     localStorage.setItem("cart", JSON.stringify(cart));
 
-    try {
-      await fetch("/api/cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(cart),
-      });
-    } catch (error) {
-      console.error("Failed to update cart:", error);
+    const response = await fetch("/api/cart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(cart),
+    });
 
+    if (!response.ok) {
       // Optimistic rendering: Handling error
       setCart(currentCart);
       localStorage.setItem("cart", JSON.stringify(currentCart));
+
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
   };
 
