@@ -3,10 +3,19 @@
 import { useCart } from "@/app/context/CartContext";
 import { ShoppingCartItem } from "./ShoppingCartItem";
 import { useEffect, useState } from "react";
+import CartLoading from "./CartLoading";
+import Error from "../Error";
 
 export default function ShoppingCart() {
-  const { cart, updateCart, getTotalItems, getTotalPrice, isLoading } =
-    useCart();
+  const {
+    cart,
+    updateCart,
+    refetch,
+    getTotalItems,
+    getTotalPrice,
+    error,
+    isLoading,
+  } = useCart();
   const [cartDetailsUpdated, setCartDetailsUpdated] = useState(false);
 
   useEffect(() => {
@@ -38,7 +47,11 @@ export default function ShoppingCart() {
   }, [cart, cartDetailsUpdated, isLoading, updateCart]);
 
   if (isLoading) {
-    return <div className="text-center py-12">Loading cart...</div>;
+    return <CartLoading />;
+  }
+
+  if (error) {
+    return <Error message={error} retry={refetch} />;
   }
 
   return (

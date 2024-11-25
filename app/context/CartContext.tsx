@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 import { Product } from "../types/product";
+import { simulateRandomError } from "../utils";
 
 export interface CartItem {
   id: number;
@@ -27,7 +28,9 @@ interface CartContextValue {
   getTotalItems: () => number;
   getTotalPrice: () => number;
   updateCart: (cart: CartItem[]) => Promise<void>;
+  refetch: () => void;
   isLoading: boolean;
+  error: string | undefined;
 }
 
 const CartContext = createContext<CartContextValue | undefined>(undefined);
@@ -37,6 +40,32 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string>();
+
+  const handleError = (errorMessage: string) => {
+    setError(errorMessage);
+    throw new Error(errorMessage);
+  };
+
+  const loadCart = useCallback(async () => {
+    setError(undefined);
+    const response = await fetch("/api/cart");
+    const serverCart: CartItem[] = await response.json();
+
+    if (!response.ok) {
+      handleError(`Failed to load cart: ${response.statusText}`);
+    }
+
+    setCart(serverCart);
+    localStorage.setItem("cart", JSON.stringify(serverCart));
+  }, []);
+
+  const refetch = useCallback(async () => {
+    setIsLoading(true);
+    await loadCart();
+
+    setIsLoading(false);
+  }, [loadCart]);
 
   useEffect(() => {
     const loadCartFromLocalStorage = () => {
@@ -52,20 +81,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   useEffect(() => {
-    const loadCart = async () => {
-      try {
-        const response = await fetch("/api/cart");
-        const serverCart: CartItem[] = await response.json();
-
-        setCart(serverCart);
-        localStorage.setItem("cart", JSON.stringify(serverCart));
-      } catch (error) {
-        console.error("Failed to load cart:", error);
-      }
-    };
-
-    loadCart();
-  }, []);
+    if (simulateRandomError()) {
+      setError("Simulated error");
+    } else {
+      loadCart();
+    }
+  }, [loadCart]);
 
   const removeFromCart = useCallback(
     async (id: number) => {
@@ -87,7 +108,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         setCart(currentCart);
         localStorage.setItem("cart", JSON.stringify(currentCart));
 
-        throw new Error(`HTTP error! status: ${response.status}`);
+        handleError(`HTTP error! status: ${response.statusText}`);
       }
     },
     [cart],
@@ -130,7 +151,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         setCart(currentCart);
         localStorage.setItem("cart", JSON.stringify(currentCart));
 
-        throw new Error(`HTTP error! status: ${response.status}`);
+        handleError(`HTTP error! status: ${response.statusText}`);
       }
     },
     [cart, removeFromCart],
@@ -154,7 +175,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       setCart(currentCart);
       localStorage.setItem("cart", JSON.stringify(currentCart));
 
-      throw new Error(`HTTP error! status: ${response.status}`);
+      handleError(`HTTP error! status: ${response.statusText}`);
     }
   }, []);
 
@@ -176,9 +197,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         updateItemQuantity,
         removeFromCart,
         updateCart,
+        refetch,
         getTotalItems,
         getTotalPrice,
         isLoading,
+        error,
       }}
     >
       {children}
